@@ -195,20 +195,14 @@
             left: 0;
             right: 0;
             border-radius: 18px 18px 0 0;
-            background: var(--fill-color, rgba(0,0,0,0.06));
             transition: height 60s linear;
             pointer-events: none;
-        }
-
-        .day-fill::after {
-            content: '';
-            position: absolute;
-            bottom: -14px;
-            left: -10%;
-            right: -10%;
-            height: 28px;
-            border-radius: 50%;
-            background: inherit;
+            background: linear-gradient(
+                to bottom,
+                var(--fill-color, rgba(0,0,0,0.06)) 0%,
+                var(--fill-color, rgba(0,0,0,0.06)) calc(100% - 6px),
+                transparent 100%
+            );
         }
 
         /* Modal */
@@ -310,7 +304,7 @@
     <div class="modal-backdrop" id="modal" onclick="closeModal(event)">
         <div class="modal" onclick="event.stopPropagation()">
             <h2>Add a city</h2>
-            <input type="text" id="tz-search" placeholder="Search cities..." oninput="filterTimezones()">
+            <input type="text" id="tz-search" placeholder="Search any city..." oninput="onSearchInput()">
             <div class="tz-list" id="tz-list"></div>
             <button class="modal-close" onclick="closeModal()">Cancel</button>
         </div>
@@ -644,10 +638,9 @@
             render();
         }
 
-        function addCity(tz, city, country) {
+        function addCity(tz, city, country, lat, lon) {
             if (cities.some(c => c.tz === tz && c.city === city)) return;
-            const dbEntry = TZ_DB.find(t => t.tz === tz && t.city === city);
-            cities.push({ city, country, tz, lat: dbEntry?.lat, lon: dbEntry?.lon });
+            cities.push({ city, country, tz, lat, lon });
             saveCities();
             render();
             closeModal();
@@ -655,11 +648,14 @@
         }
 
         // ── Modal ──
+        let searchTimeout = null;
+
         function openModal() {
             document.getElementById('modal').classList.add('open');
-            document.getElementById('tz-search').value = '';
-            filterTimezones();
-            setTimeout(() => document.getElementById('tz-search').focus(), 100);
+            const input = document.getElementById('tz-search');
+            input.value = '';
+            showSuggestions();
+            setTimeout(() => input.focus(), 100);
         }
 
         function closeModal(e) {
@@ -667,20 +663,19 @@
             document.getElementById('modal').classList.remove('open');
         }
 
-        function filterTimezones() {
-            const q = document.getElementById('tz-search').value.toLowerCase();
+        function showSuggestions() {
+            // Show static TZ_DB when search is empty
+            renderCityList(TZ_DB);
+        }
+
+        function renderCityList(results) {
             const list = document.getElementById('tz-list');
-
-            const filtered = TZ_DB.filter(t =>
-                t.city.toLowerCase().includes(q) ||
-                t.country.toLowerCase().includes(q) ||
-                t.tz.toLowerCase().includes(q)
-            );
-
-            list.innerHTML = filtered.map(t => {
+            list.innerHTML = results.map(t => {
                 const alreadyAdded = cities.some(c => c.tz === t.tz && c.city === t.city);
-                return `<div class="tz-item${alreadyAdded ? '' : ''}"
-                    onclick="${alreadyAdded ? '' : `addCity('${t.tz}','${t.city.replace(/'/g, "\\'")}','${t.country.replace(/'/g, "\\'")}')`}"
+                const safeCity = (t.city || '').replace(/'/g, "\\'");
+                const safeCountry = (t.country || '').replace(/'/g, "\\'");
+                return `<div class="tz-item"
+                    onclick="${alreadyAdded ? '' : `addCity('${t.tz}','${safeCity}','${safeCountry}',${t.lat},${t.lon})`}"
                     style="${alreadyAdded ? 'opacity:0.4;cursor:default' : ''}">
                     <span>
                         <span class="tz-city">${t.city}</span>
@@ -689,6 +684,65 @@
                     ${alreadyAdded ? '<span style="font-size:0.7rem;color:#aaa">Added</span>' : ''}
                 </div>`;
             }).join('');
+        }
+
+        function onSearchInput() {
+            const q = document.getElementById('tz-search').value.trim();
+            if (!q) { showSuggestions(); return; }
+
+            // Filter static list first for instant results
+            const localResults = TZ_DB.filter(t =>
+                t.city.toLowerCase().includes(q.toLowerCase()) ||
+                t.country.toLowerCase().includes(q.toLowerCase())
+            );
+            if (localResults.length) renderCityList(localResults);
+
+            // Debounce API search for anything not in static list
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => searchCities(q), 300);
+        }
+
+        async function searchCities(query) {
+            const list = document.getElementById('tz-list');
+            try {
+                const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=20&language=en`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (!data.results?.length) {
+                    // Keep local results if API found nothing
+                    const local = TZ_DB.filter(t =>
+                        t.city.toLowerCase().includes(query.toLowerCase()) ||
+                        t.country.toLowerCase().includes(query.toLowerCase())
+                    );
+                    if (!local.length) {
+                        list.innerHTML = '<div style="padding:1rem;color:#999;font-size:0.85rem">No cities found</div>';
+                    }
+                    return;
+                }
+
+                // Dedupe by timezone + city name
+                const seen = new Set();
+                const results = data.results
+                    .filter(r => r.timezone && r.name)
+                    .filter(r => {
+                        const key = `${r.timezone}|${r.name}`;
+                        if (seen.has(key)) return false;
+                        seen.add(key);
+                        return true;
+                    })
+                    .map(r => ({
+                        city: r.name,
+                        country: r.country || r.admin1 || '',
+                        tz: r.timezone,
+                        lat: r.latitude,
+                        lon: r.longitude,
+                    }));
+
+                renderCityList(results);
+            } catch {
+                // Silently fall back to local results
+            }
         }
 
         // ── Drag and Drop ──

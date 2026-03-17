@@ -6,7 +6,12 @@
       "Bash(export:*)",
       "Bash(git init:*)",
       "Bash(echo \"Shell: $SHELL\")",
-      "Read(//Users/els/dotfiles/**)"
+      "Read(//Users/els/dotfiles/**)",
+      "Bash(xcode-select -p)",
+      "Bash(xcodebuild -version)",
+      "Bash(open:*)",
+      "Skill(browse)",
+      "Bash(git add:*)"
     ]
   }
 }

@@ -52,6 +52,21 @@
             transform: scale(1.1);
         }
 
+        .temp-toggle {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #aaa;
+            cursor: pointer;
+            user-select: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .temp-toggle:hover { border-color: #999; color: #666; }
+
         .clocks {
             display: flex;
             gap: 1.2rem;
@@ -111,9 +126,22 @@
         .clock-card:hover .remove-btn { opacity: 0.7; }
         .remove-btn:hover { opacity: 1 !important; background: rgba(0,0,0,0.2); }
 
-        .sky-icon {
-            font-size: 1.6rem;
+        .weather-row {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
             margin-bottom: 0.6rem;
+        }
+
+        .sky-icon {
+            font-size: 1.4rem;
+            line-height: 1;
+        }
+
+        .temp {
+            font-size: 0.75rem;
+            font-weight: 600;
+            opacity: 0.6;
         }
 
         .city-name {
@@ -168,17 +196,50 @@
             gap: 0.5rem;
         }
 
-        .badge {
-            font-size: 0.6rem;
+        .day-type {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+            padding: 0.35rem 0.6rem;
+            border-radius: 8px;
+            font-size: 0.7rem;
             font-weight: 700;
             letter-spacing: 0.06em;
             text-transform: uppercase;
-            padding: 0.15rem 0.45rem;
-            border-radius: 4px;
-            background: rgba(0,0,0,0.1);
         }
 
-        .badge.weekend { background: rgba(0,0,0,0.15); }
+        .day-type.workday {
+            background: rgba(0, 180, 120, 0.15);
+            color: #0a8a5a;
+        }
+
+        .day-type.weekend {
+            background: rgba(220, 120, 0, 0.15);
+            color: #b06800;
+        }
+
+        .day-type-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .day-type.workday .day-type-dot { background: #0a8a5a; }
+        .day-type.weekend .day-type-dot { background: #b06800; }
+
+        /* Dark card overrides for day-type */
+        .clock-card[data-dark="true"] .day-type.workday {
+            background: rgba(100, 255, 200, 0.15);
+            color: #7af5c0;
+        }
+        .clock-card[data-dark="true"] .day-type.weekend {
+            background: rgba(255, 180, 80, 0.15);
+            color: #ffb870;
+        }
+        .clock-card[data-dark="true"] .day-type.workday .day-type-dot { background: #7af5c0; }
+        .clock-card[data-dark="true"] .day-type.weekend .day-type-dot { background: #ffb870; }
 
         .offset {
             font-size: 0.7rem;
@@ -298,6 +359,7 @@
     <div class="header">
         <h1>Clockwork</h1>
         <button class="add-btn" onclick="openModal()" title="Add timezone">+</button>
+        <span class="temp-toggle" id="temp-toggle" onclick="toggleTempUnit()" title="Toggle temperature unit"></span>
     </div>
     <div class="clocks" id="clocks"></div>
 
@@ -413,20 +475,22 @@
         }
 
         async function fetchWeather(city) {
-            const key = `${city.lat},${city.lon}`;
-            const cached = weatherCache[key];
-            if (cached && Date.now() - cached.ts < 15 * 60 * 1000) return cached.code;
+            const lat = city.lat;
+            const lon = city.lon;
+            if (lat == null || lon == null) return null;
 
-            const dbEntry = TZ_DB.find(t => t.city === city.city && t.tz === city.tz);
-            if (!dbEntry || dbEntry.lat == null) return null;
+            const key = `${lat},${lon}`;
+            const cached = weatherCache[key];
+            if (cached && Date.now() - cached.ts < 15 * 60 * 1000) return cached;
 
             try {
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${dbEntry.lat}&longitude=${dbEntry.lon}&current=weather_code&timezone=auto`;
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=weather_code,temperature_2m&timezone=auto`;
                 const res = await fetch(url);
                 const data = await res.json();
                 const code = data?.current?.weather_code ?? null;
-                weatherCache[key] = { code, ts: Date.now() };
-                return code;
+                const tempC = data?.current?.temperature_2m ?? null;
+                weatherCache[key] = { code, tempC, ts: Date.now() };
+                return weatherCache[key];
             } catch {
                 return null;
             }
@@ -437,6 +501,26 @@
                 await fetchWeather(city);
             }
             update();
+        }
+
+        // ── Temperature unit ──
+        let tempUnit = localStorage.getItem('clockwork-temp-unit') || 'C';
+
+        function toggleTempUnit() {
+            tempUnit = tempUnit === 'C' ? 'F' : 'C';
+            localStorage.setItem('clockwork-temp-unit', tempUnit);
+            updateTempToggle();
+            update();
+        }
+
+        function updateTempToggle() {
+            document.getElementById('temp-toggle').textContent = `°${tempUnit}`;
+        }
+
+        function formatTemp(tempC) {
+            if (tempC == null) return '';
+            const val = tempUnit === 'F' ? (tempC * 9/5) + 32 : tempC;
+            return `${Math.round(val)}°`;
         }
 
         // ── State ──
@@ -534,7 +618,10 @@
                 card.innerHTML = `
                     <div class="day-fill"></div>
                     <div class="card-top">
-                        <div class="sky-icon"></div>
+                        <div class="weather-row">
+                            <span class="sky-icon"></span>
+                            <span class="temp"></span>
+                        </div>
                         <button class="remove-btn" onclick="removeCity(${index})" title="Remove">\u2715</button>
                     </div>
                     <div class="city-name">${zone.city}</div>
@@ -542,6 +629,7 @@
                     <div class="time"></div>
                     <div class="date-line"></div>
                     <div class="day-line"></div>
+                    <div class="day-type"></div>
                     <div class="offset"></div>
                 `;
 
@@ -590,16 +678,21 @@
                 card.style.background = theme.bg;
                 card.style.color = theme.color;
 
-                // Weather icon (fall back to time-of-day icon)
-                const dbEntry = TZ_DB.find(t => t.city === zone.city && t.tz === zone.tz);
-                const wKey = dbEntry ? `${dbEntry.lat},${dbEntry.lon}` : null;
+                // Weather icon + temp
+                const wKey = (zone.lat != null) ? `${zone.lat},${zone.lon}` : null;
                 const wCached = wKey ? weatherCache[wKey] : null;
                 const isNight = hour24 >= 20 || hour24 < 6;
                 if (wCached && wCached.code != null) {
                     card.querySelector('.sky-icon').textContent = getWeatherIcon(wCached.code, isNight);
+                    card.querySelector('.temp').textContent = formatTemp(wCached.tempC);
                 } else {
                     card.querySelector('.sky-icon').textContent = theme.icon;
+                    card.querySelector('.temp').textContent = '';
                 }
+
+                // Dark card flag for CSS overrides
+                const isDarkCard = hour24 >= 20 || hour24 < 5;
+                card.dataset.dark = isDarkCard;
 
                 const hour = get('hour');
                 const minute = get('minute');
@@ -619,8 +712,11 @@
                 const dayIndex = DAYS.indexOf(weekday);
                 const isWorkday = dayIndex >= 1 && dayIndex <= 5;
 
-                card.querySelector('.day-line').innerHTML =
-                    `${weekday} <span class="badge ${isWorkday ? 'workday' : 'weekend'}">${isWorkday ? 'Workday' : 'Weekend'}</span>`;
+                card.querySelector('.day-line').textContent = weekday;
+
+                const dayTypeEl = card.querySelector('.day-type');
+                dayTypeEl.className = `day-type ${isWorkday ? 'workday' : 'weekend'}`;
+                dayTypeEl.innerHTML = `<span class="day-type-dot"></span> ${isWorkday ? 'Workday' : 'Weekend'}`;
 
                 const tzFormatter = new Intl.DateTimeFormat('en-US', {
                     ...opts, timeZoneName: 'longOffset',
@@ -830,6 +926,7 @@
         });
 
         // ── Init ──
+        updateTempToggle();
         render();
         refreshAllWeather();
         setInterval(update, 1000);

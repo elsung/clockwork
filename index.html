@@ -63,7 +63,7 @@
 
         .clock-card {
             border-radius: 18px;
-            padding: 1.6rem 2.4rem 1.4rem 1.8rem;
+            padding: 1.6rem 1.8rem 1.4rem;
             min-width: 260px;
             max-width: 320px;
             flex: 1 1 260px;
@@ -188,48 +188,16 @@
             border-top: 1px solid rgba(0,0,0,0.08);
         }
 
-        /* Day arc */
-        .day-arc {
+        /* Day fill */
+        .day-fill {
             position: absolute;
-            right: 10px;
-            top: 14px;
-            bottom: 14px;
-            width: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .day-arc-track {
-            position: relative;
-            width: 3px;
-            height: 100%;
-            border-radius: 2px;
-            background: rgba(0,0,0,0.08);
-            overflow: visible;
-        }
-
-        .day-arc-fill {
-            position: absolute;
-            top: 0;
+            bottom: 0;
             left: 0;
             right: 0;
-            border-radius: 2px;
-            background: rgba(0,0,0,0.12);
-            transition: height 1s linear;
-        }
-
-        .day-arc-dot {
-            position: absolute;
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: currentColor;
-            opacity: 0.5;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            transition: top 1s linear;
-            z-index: 1;
+            border-radius: 0 0 18px 18px;
+            background: rgba(0,0,0,0.06);
+            transition: height 60s linear;
+            pointer-events: none;
         }
 
         /* Modal */
@@ -496,12 +464,7 @@
                 card.addEventListener('touchend', onTouchEnd);
 
                 card.innerHTML = `
-                    <div class="day-arc">
-                        <div class="day-arc-track">
-                            <div class="day-arc-fill"></div>
-                            <div class="day-arc-dot"></div>
-                        </div>
-                    </div>
+                    <div class="day-fill"></div>
                     <div class="card-top">
                         <div class="sky-icon"></div>
                         <button class="remove-btn" onclick="removeCity(${index})" title="Remove">\u2715</button>
@@ -546,11 +509,9 @@
 
                 const minuteVal = parseInt(get('minute') || '0');
                 const fractionalHour = hour24 + minuteVal / 60;
-                const arcPct = (fractionalHour / 24) * 100;
-                const dot = card.querySelector('.day-arc-dot');
-                const fill = card.querySelector('.day-arc-fill');
-                if (dot) dot.style.top = arcPct + '%';
-                if (fill) fill.style.height = arcPct + '%';
+                const fillPct = (fractionalHour / 24) * 100;
+                const fill = card.querySelector('.day-fill');
+                if (fill) fill.style.height = fillPct + '%';
 
                 const theme = getTimeTheme(hour24);
                 card.style.background = theme.bg;

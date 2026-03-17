@@ -191,61 +191,46 @@
         /* Day arc */
         .day-arc {
             position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 28px;
+            right: 10px;
+            top: 14px;
+            bottom: 14px;
+            width: 14px;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            padding: 10px 0;
+            justify-content: center;
         }
 
         .day-arc-track {
             position: relative;
-            width: 6px;
+            width: 3px;
             height: 100%;
-            border-radius: 3px;
-            background: linear-gradient(
-                to bottom,
-                #1a1a3e 0%,
-                #2d2b55 8%,
-                #fcb69f 18%,
-                #b2ebf2 28%,
-                #fff176 42%,
-                #ffcc80 58%,
-                #ff8a65 72%,
-                #4a3f6b 85%,
-                #1a1a3e 100%
-            );
-            opacity: 0.6;
+            border-radius: 2px;
+            background: rgba(0,0,0,0.08);
+            overflow: visible;
+        }
+
+        .day-arc-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            border-radius: 2px;
+            background: rgba(0,0,0,0.12);
+            transition: height 1s linear;
         }
 
         .day-arc-dot {
             position: absolute;
-            width: 12px;
-            height: 12px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
-            background: white;
-            border: 2px solid rgba(0,0,0,0.25);
+            background: currentColor;
+            opacity: 0.5;
             left: 50%;
             transform: translate(-50%, -50%);
-            box-shadow: 0 0 6px rgba(255,255,255,0.8);
             transition: top 1s linear;
             z-index: 1;
         }
-
-        .day-arc-label {
-            position: absolute;
-            font-size: 0.45rem;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-            opacity: 0.35;
-            text-transform: uppercase;
-        }
-
-        .day-arc-label.top { top: 2px; }
-        .day-arc-label.bottom { bottom: 2px; }
 
         /* Modal */
         .modal-backdrop {
@@ -513,9 +498,8 @@
                 card.innerHTML = `
                     <div class="day-arc">
                         <div class="day-arc-track">
-                            <div class="day-arc-label top">12a</div>
+                            <div class="day-arc-fill"></div>
                             <div class="day-arc-dot"></div>
-                            <div class="day-arc-label bottom">12a</div>
                         </div>
                     </div>
                     <div class="card-top">
@@ -562,10 +546,11 @@
 
                 const minuteVal = parseInt(get('minute') || '0');
                 const fractionalHour = hour24 + minuteVal / 60;
-                // Map 0-24h to 0-100% on the track
                 const arcPct = (fractionalHour / 24) * 100;
                 const dot = card.querySelector('.day-arc-dot');
+                const fill = card.querySelector('.day-arc-fill');
                 if (dot) dot.style.top = arcPct + '%';
+                if (fill) fill.style.height = arcPct + '%';
 
                 const theme = getTimeTheme(hour24);
                 card.style.background = theme.bg;

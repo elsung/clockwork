@@ -18,9 +18,15 @@
         .header {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto 2rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
         }
 
         h1 {
@@ -53,19 +59,25 @@
         }
 
         .temp-toggle {
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #aaa;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #666;
             cursor: pointer;
             user-select: none;
-            padding: 0.25rem 0.5rem;
-            border-radius: 6px;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
             border: 1px solid #ddd;
             background: white;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
         }
 
-        .temp-toggle:hover { border-color: #999; color: #666; }
+        .temp-toggle:hover { border-color: #999; color: #333; background: #fafafa; }
+
+        .temp-toggle .active { font-weight: 700; color: #1a1a1a; }
+        .temp-toggle .sep { color: #ccc; }
 
         .clocks {
             display: flex;
@@ -197,11 +209,11 @@
         }
 
         .day-type {
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 0.4rem;
             margin-top: 0.5rem;
-            padding: 0.35rem 0.6rem;
+            padding: 0.35rem 0.65rem;
             border-radius: 8px;
             font-size: 0.7rem;
             font-weight: 700;
@@ -210,13 +222,13 @@
         }
 
         .day-type.workday {
-            background: rgba(0, 180, 120, 0.15);
-            color: #0a8a5a;
+            background: rgba(0, 0, 0, 0.08);
+            color: inherit;
         }
 
         .day-type.weekend {
-            background: rgba(220, 120, 0, 0.15);
-            color: #b06800;
+            background: rgba(0, 0, 0, 0.12);
+            color: inherit;
         }
 
         .day-type-dot {
@@ -226,20 +238,16 @@
             flex-shrink: 0;
         }
 
-        .day-type.workday .day-type-dot { background: #0a8a5a; }
-        .day-type.weekend .day-type-dot { background: #b06800; }
+        .day-type.workday .day-type-dot { background: #22c55e; }
+        .day-type.weekend .day-type-dot { background: #f59e0b; }
 
-        /* Dark card overrides for day-type */
+        /* Dark cards: white box */
         .clock-card[data-dark="true"] .day-type.workday {
-            background: rgba(100, 255, 200, 0.15);
-            color: #7af5c0;
+            background: rgba(255, 255, 255, 0.12);
         }
         .clock-card[data-dark="true"] .day-type.weekend {
-            background: rgba(255, 180, 80, 0.15);
-            color: #ffb870;
+            background: rgba(255, 255, 255, 0.15);
         }
-        .clock-card[data-dark="true"] .day-type.workday .day-type-dot { background: #7af5c0; }
-        .clock-card[data-dark="true"] .day-type.weekend .day-type-dot { background: #ffb870; }
 
         .offset {
             font-size: 0.7rem;
@@ -357,9 +365,11 @@
 </head>
 <body>
     <div class="header">
-        <h1>Clockwork</h1>
-        <button class="add-btn" onclick="openModal()" title="Add timezone">+</button>
-        <span class="temp-toggle" id="temp-toggle" onclick="toggleTempUnit()" title="Toggle temperature unit"></span>
+        <div class="header-left">
+            <h1>Clockwork</h1>
+            <button class="add-btn" onclick="openModal()" title="Add city">+</button>
+        </div>
+        <div class="temp-toggle" id="temp-toggle" onclick="toggleTempUnit()" title="Toggle temperature unit"></div>
     </div>
     <div class="clocks" id="clocks"></div>
 
@@ -514,7 +524,9 @@
         }
 
         function updateTempToggle() {
-            document.getElementById('temp-toggle').textContent = `°${tempUnit}`;
+            const el = document.getElementById('temp-toggle');
+            const isC = tempUnit === 'C';
+            el.innerHTML = `<span class="${isC ? 'active' : ''}">°C</span><span class="sep">/</span><span class="${!isC ? 'active' : ''}">°F</span>`;
         }
 
         function formatTemp(tempC) {

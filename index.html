@@ -191,13 +191,24 @@
         /* Day fill */
         .day-fill {
             position: absolute;
-            bottom: 0;
+            top: 0;
             left: 0;
             right: 0;
-            border-radius: 0 0 18px 18px;
-            background: rgba(0,0,0,0.06);
+            border-radius: 18px 18px 0 0;
+            background: var(--fill-color, rgba(0,0,0,0.06));
             transition: height 60s linear;
             pointer-events: none;
+        }
+
+        .day-fill::after {
+            content: '';
+            position: absolute;
+            bottom: -14px;
+            left: -10%;
+            right: -10%;
+            height: 28px;
+            border-radius: 50%;
+            background: inherit;
         }
 
         /* Modal */
@@ -511,7 +522,12 @@
                 const fractionalHour = hour24 + minuteVal / 60;
                 const fillPct = (fractionalHour / 24) * 100;
                 const fill = card.querySelector('.day-fill');
-                if (fill) fill.style.height = fillPct + '%';
+                if (fill) {
+                    fill.style.height = fillPct + '%';
+                    const isDark = hour24 >= 20 || hour24 < 5;
+                    fill.style.setProperty('--fill-color',
+                        isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)');
+                }
 
                 const theme = getTimeTheme(hour24);
                 card.style.background = theme.bg;

@@ -317,70 +317,133 @@
     </div>
 
     <script>
-        // ── Timezone database ──
+        // ── Timezone database (with lat/lon for weather) ──
         const TZ_DB = [
-            { city: 'Tokyo', country: 'Japan', tz: 'Asia/Tokyo' },
-            { city: 'Los Angeles', country: 'United States', tz: 'America/Los_Angeles' },
-            { city: 'Barcelona', country: 'Spain', tz: 'Europe/Madrid' },
-            { city: 'New York', country: 'United States', tz: 'America/New_York' },
-            { city: 'London', country: 'United Kingdom', tz: 'Europe/London' },
-            { city: 'Paris', country: 'France', tz: 'Europe/Paris' },
-            { city: 'Berlin', country: 'Germany', tz: 'Europe/Berlin' },
-            { city: 'Sydney', country: 'Australia', tz: 'Australia/Sydney' },
-            { city: 'Melbourne', country: 'Australia', tz: 'Australia/Melbourne' },
-            { city: 'Auckland', country: 'New Zealand', tz: 'Pacific/Auckland' },
-            { city: 'Singapore', country: 'Singapore', tz: 'Asia/Singapore' },
-            { city: 'Hong Kong', country: 'China', tz: 'Asia/Hong_Kong' },
-            { city: 'Shanghai', country: 'China', tz: 'Asia/Shanghai' },
-            { city: 'Seoul', country: 'South Korea', tz: 'Asia/Seoul' },
-            { city: 'Mumbai', country: 'India', tz: 'Asia/Kolkata' },
-            { city: 'Delhi', country: 'India', tz: 'Asia/Kolkata' },
-            { city: 'Dubai', country: 'UAE', tz: 'Asia/Dubai' },
-            { city: 'Istanbul', country: 'Turkey', tz: 'Europe/Istanbul' },
-            { city: 'Moscow', country: 'Russia', tz: 'Europe/Moscow' },
-            { city: 'Cairo', country: 'Egypt', tz: 'Africa/Cairo' },
-            { city: 'Lagos', country: 'Nigeria', tz: 'Africa/Lagos' },
-            { city: 'Nairobi', country: 'Kenya', tz: 'Africa/Nairobi' },
-            { city: 'Johannesburg', country: 'South Africa', tz: 'Africa/Johannesburg' },
-            { city: 'São Paulo', country: 'Brazil', tz: 'America/Sao_Paulo' },
-            { city: 'Mexico City', country: 'Mexico', tz: 'America/Mexico_City' },
-            { city: 'Buenos Aires', country: 'Argentina', tz: 'America/Argentina/Buenos_Aires' },
-            { city: 'Chicago', country: 'United States', tz: 'America/Chicago' },
-            { city: 'Denver', country: 'United States', tz: 'America/Denver' },
-            { city: 'Phoenix', country: 'United States', tz: 'America/Phoenix' },
-            { city: 'Honolulu', country: 'United States', tz: 'Pacific/Honolulu' },
-            { city: 'Anchorage', country: 'United States', tz: 'America/Anchorage' },
-            { city: 'Toronto', country: 'Canada', tz: 'America/Toronto' },
-            { city: 'Vancouver', country: 'Canada', tz: 'America/Vancouver' },
-            { city: 'Bangkok', country: 'Thailand', tz: 'Asia/Bangkok' },
-            { city: 'Jakarta', country: 'Indonesia', tz: 'Asia/Jakarta' },
-            { city: 'Manila', country: 'Philippines', tz: 'Asia/Manila' },
-            { city: 'Taipei', country: 'Taiwan', tz: 'Asia/Taipei' },
-            { city: 'Kuala Lumpur', country: 'Malaysia', tz: 'Asia/Kuala_Lumpur' },
-            { city: 'Lisbon', country: 'Portugal', tz: 'Europe/Lisbon' },
-            { city: 'Rome', country: 'Italy', tz: 'Europe/Rome' },
-            { city: 'Amsterdam', country: 'Netherlands', tz: 'Europe/Amsterdam' },
-            { city: 'Stockholm', country: 'Sweden', tz: 'Europe/Stockholm' },
-            { city: 'Vienna', country: 'Austria', tz: 'Europe/Vienna' },
-            { city: 'Warsaw', country: 'Poland', tz: 'Europe/Warsaw' },
-            { city: 'Athens', country: 'Greece', tz: 'Europe/Athens' },
-            { city: 'Helsinki', country: 'Finland', tz: 'Europe/Helsinki' },
-            { city: 'Zurich', country: 'Switzerland', tz: 'Europe/Zurich' },
-            { city: 'Dublin', country: 'Ireland', tz: 'Europe/Dublin' },
-            { city: 'Lima', country: 'Peru', tz: 'America/Lima' },
-            { city: 'Bogota', country: 'Colombia', tz: 'America/Bogota' },
-            { city: 'Santiago', country: 'Chile', tz: 'America/Santiago' },
-            { city: 'Doha', country: 'Qatar', tz: 'Asia/Qatar' },
-            { city: 'Riyadh', country: 'Saudi Arabia', tz: 'Asia/Riyadh' },
-            { city: 'Tel Aviv', country: 'Israel', tz: 'Asia/Jerusalem' },
+            { city: 'Tokyo', country: 'Japan', tz: 'Asia/Tokyo', lat: 35.68, lon: 139.69 },
+            { city: 'Los Angeles', country: 'United States', tz: 'America/Los_Angeles', lat: 34.05, lon: -118.24 },
+            { city: 'Barcelona', country: 'Spain', tz: 'Europe/Madrid', lat: 41.39, lon: 2.17 },
+            { city: 'New York', country: 'United States', tz: 'America/New_York', lat: 40.71, lon: -74.01 },
+            { city: 'London', country: 'United Kingdom', tz: 'Europe/London', lat: 51.51, lon: -0.13 },
+            { city: 'Paris', country: 'France', tz: 'Europe/Paris', lat: 48.86, lon: 2.35 },
+            { city: 'Berlin', country: 'Germany', tz: 'Europe/Berlin', lat: 52.52, lon: 13.41 },
+            { city: 'Sydney', country: 'Australia', tz: 'Australia/Sydney', lat: -33.87, lon: 151.21 },
+            { city: 'Melbourne', country: 'Australia', tz: 'Australia/Melbourne', lat: -37.81, lon: 144.96 },
+            { city: 'Auckland', country: 'New Zealand', tz: 'Pacific/Auckland', lat: -36.85, lon: 174.76 },
+            { city: 'Singapore', country: 'Singapore', tz: 'Asia/Singapore', lat: 1.35, lon: 103.82 },
+            { city: 'Hong Kong', country: 'China', tz: 'Asia/Hong_Kong', lat: 22.32, lon: 114.17 },
+            { city: 'Shanghai', country: 'China', tz: 'Asia/Shanghai', lat: 31.23, lon: 121.47 },
+            { city: 'Seoul', country: 'South Korea', tz: 'Asia/Seoul', lat: 37.57, lon: 126.98 },
+            { city: 'Mumbai', country: 'India', tz: 'Asia/Kolkata', lat: 19.08, lon: 72.88 },
+            { city: 'Delhi', country: 'India', tz: 'Asia/Kolkata', lat: 28.61, lon: 77.21 },
+            { city: 'Dubai', country: 'UAE', tz: 'Asia/Dubai', lat: 25.20, lon: 55.27 },
+            { city: 'Istanbul', country: 'Turkey', tz: 'Europe/Istanbul', lat: 41.01, lon: 28.98 },
+            { city: 'Moscow', country: 'Russia', tz: 'Europe/Moscow', lat: 55.76, lon: 37.62 },
+            { city: 'Cairo', country: 'Egypt', tz: 'Africa/Cairo', lat: 30.04, lon: 31.24 },
+            { city: 'Lagos', country: 'Nigeria', tz: 'Africa/Lagos', lat: 6.52, lon: 3.38 },
+            { city: 'Nairobi', country: 'Kenya', tz: 'Africa/Nairobi', lat: -1.29, lon: 36.82 },
+            { city: 'Johannesburg', country: 'South Africa', tz: 'Africa/Johannesburg', lat: -26.20, lon: 28.04 },
+            { city: 'São Paulo', country: 'Brazil', tz: 'America/Sao_Paulo', lat: -23.55, lon: -46.63 },
+            { city: 'Mexico City', country: 'Mexico', tz: 'America/Mexico_City', lat: 19.43, lon: -99.13 },
+            { city: 'Buenos Aires', country: 'Argentina', tz: 'America/Argentina/Buenos_Aires', lat: -34.60, lon: -58.38 },
+            { city: 'Chicago', country: 'United States', tz: 'America/Chicago', lat: 41.88, lon: -87.63 },
+            { city: 'Denver', country: 'United States', tz: 'America/Denver', lat: 39.74, lon: -104.99 },
+            { city: 'Phoenix', country: 'United States', tz: 'America/Phoenix', lat: 33.45, lon: -112.07 },
+            { city: 'Honolulu', country: 'United States', tz: 'Pacific/Honolulu', lat: 21.31, lon: -157.86 },
+            { city: 'Anchorage', country: 'United States', tz: 'America/Anchorage', lat: 61.22, lon: -149.90 },
+            { city: 'Toronto', country: 'Canada', tz: 'America/Toronto', lat: 43.65, lon: -79.38 },
+            { city: 'Vancouver', country: 'Canada', tz: 'America/Vancouver', lat: 49.28, lon: -123.12 },
+            { city: 'Bangkok', country: 'Thailand', tz: 'Asia/Bangkok', lat: 13.76, lon: 100.50 },
+            { city: 'Jakarta', country: 'Indonesia', tz: 'Asia/Jakarta', lat: -6.21, lon: 106.85 },
+            { city: 'Manila', country: 'Philippines', tz: 'Asia/Manila', lat: 14.60, lon: 120.98 },
+            { city: 'Taipei', country: 'Taiwan', tz: 'Asia/Taipei', lat: 25.03, lon: 121.57 },
+            { city: 'Kuala Lumpur', country: 'Malaysia', tz: 'Asia/Kuala_Lumpur', lat: 3.14, lon: 101.69 },
+            { city: 'Lisbon', country: 'Portugal', tz: 'Europe/Lisbon', lat: 38.72, lon: -9.14 },
+            { city: 'Rome', country: 'Italy', tz: 'Europe/Rome', lat: 41.90, lon: 12.50 },
+            { city: 'Amsterdam', country: 'Netherlands', tz: 'Europe/Amsterdam', lat: 52.37, lon: 4.90 },
+            { city: 'Stockholm', country: 'Sweden', tz: 'Europe/Stockholm', lat: 59.33, lon: 18.07 },
+            { city: 'Vienna', country: 'Austria', tz: 'Europe/Vienna', lat: 48.21, lon: 16.37 },
+            { city: 'Warsaw', country: 'Poland', tz: 'Europe/Warsaw', lat: 52.23, lon: 21.01 },
+            { city: 'Athens', country: 'Greece', tz: 'Europe/Athens', lat: 37.98, lon: 23.73 },
+            { city: 'Helsinki', country: 'Finland', tz: 'Europe/Helsinki', lat: 60.17, lon: 24.94 },
+            { city: 'Zurich', country: 'Switzerland', tz: 'Europe/Zurich', lat: 47.38, lon: 8.54 },
+            { city: 'Dublin', country: 'Ireland', tz: 'Europe/Dublin', lat: 53.35, lon: -6.26 },
+            { city: 'Lima', country: 'Peru', tz: 'America/Lima', lat: -12.05, lon: -77.04 },
+            { city: 'Bogota', country: 'Colombia', tz: 'America/Bogota', lat: 4.71, lon: -74.07 },
+            { city: 'Santiago', country: 'Chile', tz: 'America/Santiago', lat: -33.45, lon: -70.67 },
+            { city: 'Doha', country: 'Qatar', tz: 'Asia/Qatar', lat: 25.29, lon: 51.53 },
+            { city: 'Riyadh', country: 'Saudi Arabia', tz: 'Asia/Riyadh', lat: 24.69, lon: 46.72 },
+            { city: 'Tel Aviv', country: 'Israel', tz: 'Asia/Jerusalem', lat: 32.09, lon: 34.78 },
         ];
 
         // ── Default cities ──
         const DEFAULT_CITIES = [
-            { city: 'Tokyo', country: 'Japan', tz: 'Asia/Tokyo' },
-            { city: 'Los Angeles', country: 'United States', tz: 'America/Los_Angeles' },
-            { city: 'Barcelona', country: 'Spain', tz: 'Europe/Madrid' },
+            { city: 'Tokyo', country: 'Japan', tz: 'Asia/Tokyo', lat: 35.68, lon: 139.69 },
+            { city: 'Los Angeles', country: 'United States', tz: 'America/Los_Angeles', lat: 34.05, lon: -118.24 },
+            { city: 'Barcelona', country: 'Spain', tz: 'Europe/Madrid', lat: 41.39, lon: 2.17 },
         ];
+
+        // ── WMO weather code → emoji (day/night variants) ──
+        const WMO_ICONS = {
+            0:  ['☀️', '🌙'],   // Clear
+            1:  ['🌤️', '🌙'],  // Mainly clear
+            2:  ['⛅', '☁️'],   // Partly cloudy
+            3:  ['☁️', '☁️'],   // Overcast
+            45: ['🌫️', '🌫️'], // Fog
+            48: ['🌫️', '🌫️'], // Rime fog
+            51: ['🌦️', '🌧️'], // Light drizzle
+            53: ['🌦️', '🌧️'], // Moderate drizzle
+            55: ['🌧️', '🌧️'], // Dense drizzle
+            61: ['🌧️', '🌧️'], // Slight rain
+            63: ['🌧️', '🌧️'], // Moderate rain
+            65: ['🌧️', '🌧️'], // Heavy rain
+            71: ['🌨️', '🌨️'], // Slight snow
+            73: ['🌨️', '🌨️'], // Moderate snow
+            75: ['❄️', '❄️'],   // Heavy snow
+            77: ['🌨️', '🌨️'], // Snow grains
+            80: ['🌦️', '🌧️'], // Slight showers
+            81: ['🌧️', '🌧️'], // Moderate showers
+            82: ['⛈️', '⛈️'],  // Violent showers
+            85: ['🌨️', '🌨️'], // Slight snow showers
+            86: ['❄️', '❄️'],   // Heavy snow showers
+            95: ['⛈️', '⛈️'],  // Thunderstorm
+            96: ['⛈️', '⛈️'],  // Thunderstorm + hail
+            99: ['⛈️', '⛈️'],  // Thunderstorm + heavy hail
+        };
+
+        // ── Weather cache ──
+        const weatherCache = {};
+
+        function getWeatherIcon(code, isNight) {
+            const icons = WMO_ICONS[code] || ['🌡️', '🌡️'];
+            return isNight ? icons[1] : icons[0];
+        }
+
+        async function fetchWeather(city) {
+            const key = `${city.lat},${city.lon}`;
+            const cached = weatherCache[key];
+            if (cached && Date.now() - cached.ts < 15 * 60 * 1000) return cached.code;
+
+            const dbEntry = TZ_DB.find(t => t.city === city.city && t.tz === city.tz);
+            if (!dbEntry || dbEntry.lat == null) return null;
+
+            try {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${dbEntry.lat}&longitude=${dbEntry.lon}&current=weather_code&timezone=auto`;
+                const res = await fetch(url);
+                const data = await res.json();
+                const code = data?.current?.weather_code ?? null;
+                weatherCache[key] = { code, ts: Date.now() };
+                return code;
+            } catch {
+                return null;
+            }
+        }
+
+        async function refreshAllWeather() {
+            for (const city of cities) {
+                await fetchWeather(city);
+            }
+            update();
+        }
 
         // ── State ──
         let cities = loadCities();
@@ -533,7 +596,16 @@
                 card.style.background = theme.bg;
                 card.style.color = theme.color;
 
-                card.querySelector('.sky-icon').textContent = theme.icon;
+                // Weather icon (fall back to time-of-day icon)
+                const dbEntry = TZ_DB.find(t => t.city === zone.city && t.tz === zone.tz);
+                const wKey = dbEntry ? `${dbEntry.lat},${dbEntry.lon}` : null;
+                const wCached = wKey ? weatherCache[wKey] : null;
+                const isNight = hour24 >= 20 || hour24 < 6;
+                if (wCached && wCached.code != null) {
+                    card.querySelector('.sky-icon').textContent = getWeatherIcon(wCached.code, isNight);
+                } else {
+                    card.querySelector('.sky-icon').textContent = theme.icon;
+                }
 
                 const hour = get('hour');
                 const minute = get('minute');
@@ -574,10 +646,12 @@
 
         function addCity(tz, city, country) {
             if (cities.some(c => c.tz === tz && c.city === city)) return;
-            cities.push({ city, country, tz });
+            const dbEntry = TZ_DB.find(t => t.tz === tz && t.city === city);
+            cities.push({ city, country, tz, lat: dbEntry?.lat, lon: dbEntry?.lon });
             saveCities();
             render();
             closeModal();
+            fetchWeather(cities[cities.length - 1]).then(() => update());
         }
 
         // ── Modal ──
@@ -703,7 +777,9 @@
 
         // ── Init ──
         render();
+        refreshAllWeather();
         setInterval(update, 1000);
+        setInterval(refreshAllWeather, 15 * 60 * 1000); // refresh weather every 15 min
     </script>
 </body>
 </html>

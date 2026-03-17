@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(which bun:*)",
+      "Bash(curl:*)",
+      "Bash(export:*)",
+      "Bash(git init:*)",
+      "Bash(echo \"Shell: $SHELL\")",
+      "Read(//Users/els/dotfiles/**)"
+    ]
+  }
+}
